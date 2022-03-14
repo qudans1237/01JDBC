@@ -1,14 +1,12 @@
 package sql;
 
 import java.sql.Connection;
-import java.util.*;
-import java.lang.*;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class EmpManager {
+public class EmpManager2 {
 
 	static {
 		try {
@@ -18,26 +16,22 @@ public class EmpManager {
 		}
 	}
 	
-
-	
-	public void printEmployee(String name,int salary) throws SQLException{
-		String upperCaseFirst=name;
-		char[] arr = upperCaseFirst.toCharArray();
-		arr[0] = Character.toUpperCase(arr[0]);
-		new String(arr);
-		
+	public void printEmployee(String jobs[]) throws SQLException{
 		
 		String dburl = "jdbc:oracle:thin:@localhost:1521:xe";
 		Connection conn =DriverManager.getConnection(dburl,"hr","hr");
-		PreparedStatement pstmt = conn.prepareStatement("select \r\n"
-				+ "e.employee_id,e.first_name, e.salary\r\n"
-				+ "from employees e,(select employee_id from employees where salary > ? ) e1\r\n"
-				+ "where e.employee_id = e1.employee_id\r\n"
-				+ "and first_name like ? or first_name like ? \r\n"
-				+ "and e.employee_id = e1.employee_id");
-		pstmt.setInt(1 , salary);
-		pstmt.setString(2,new String(arr)+"%");
-		pstmt.setString(3,"%"+name+"%");
+		PreparedStatement pstmt = conn.prepareStatement("select\r\n"
+				+ "e.employee_id,e.first_name,e.salary\r\n"
+				+ "from employees e,(Select\r\n"
+				+ "				e.employee_id,j.job_id\r\n"
+				+ "				from employees e, jobs j\r\n"
+				+ "				where e.job_id = j.job_id\r\n"
+				+ "				and j.job_title = ? \r\n"
+				+ "				or j.job_title = ?) je\r\n"
+				+ "where e.employee_id = je.employee_id\r\n"
+				+ "and e.job_id = je.job_id");
+		pstmt.setString(1, jobs[0]);
+		pstmt.setString(2, jobs[1]);
 		
 		ResultSet rs = pstmt.executeQuery();
 		
@@ -57,10 +51,13 @@ public class EmpManager {
 		if (conn != null) {
 			conn.close();
 		}
-			
 	}
+	
+	
 	public static void main(String[] args) throws SQLException{
 		
-		new EmpManager().printEmployee("al",4000);
+		String[] jobs = {"Accountant","Stock Clerk"};
+		new EmpManager2().printEmployee(jobs);
 	}
+	
 }

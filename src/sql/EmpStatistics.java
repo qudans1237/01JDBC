@@ -12,15 +12,7 @@ public class EmpStatistics {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void main(String[] args) throws SQLException {
-		
-		int maxSalary = 10000;
-		new EmpStatistics().printStatistics(maxSalary);
-		
-		maxSalary= 15000;
-		new EmpStatistics().printStatistics(maxSalary);
-	}
+
 	
 	public void printStatistics(int maxSalary) throws SQLException {
 		String url = "jdbc:oracle:thin:@127.0.0.1:1521:xe";
@@ -32,7 +24,7 @@ public class EmpStatistics {
 				+ " where e.job_id = j.job_id and e.salary >= ? \r\n"
 				+ " GROUP BY j.JOB_TITLE \r\n"
 				+ " ORDER BY AVG(e.salary) desc");
-		pstmt.setInt(1,+maxSalary);
+		pstmt.setInt(1,maxSalary);
 		ResultSet rs = pstmt.executeQuery();
 		System.out.println("=====================================");
 		System.out.println("Max Salary : " + maxSalary);
@@ -47,10 +39,25 @@ public class EmpStatistics {
 		System.out.println("["+jobTitle+"]"+"\t"+avgsal);
 		}
 		
+		if(rs != null) {
 			rs.close();
+		}
+		if (pstmt != null) {
 			pstmt.close();
+		}
+		if (con != null) {
 			con.close();
+		}
 
+	}
+	
+	public static void main(String[] args) throws SQLException {
+		
+		int maxSalary = 10000;
+		new EmpStatistics().printStatistics(maxSalary);
+		
+		maxSalary= 15000;
+		new EmpStatistics().printStatistics(maxSalary);
 	}
 }
 
